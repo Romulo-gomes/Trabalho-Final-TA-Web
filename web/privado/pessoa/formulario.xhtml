@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:form id="formEdicao">
+        <h:panelGroup rendered="#{controlePessoa.editando}">
+            <div class="ui-fluid">
+            <p:messages/>
+            <p:panelGrid columns="2" columnClasses="ui-grid-col-2, ui-grid-col-20"
+                    layout="grid" styleClass="ui-panelgrid-blank">
+                    <f:facet name="header">
+                        <p:outputLabel value="Edição de Pessoa"/>
+                    </f:facet>
+                    <p:outputLabel value="Login" for="txtLogin"/>
+                    <p:inputText value="#{controlePessoa.objeto.login}"
+                                 required="true" size="20" maxlength="20" id="txtLogin"
+                                 placeholder="Obrigatório" readonly="#{!controlePessoa.novoObjeto}">
+                        <p:ajax process="@this" update="@this messages"
+                                listener="#{controlePessoa.verificaUnicidadeUsuario()}"
+                                event="blur"/>
+                    </p:inputText>
+                    <p:outputLabel value="Nome" for="txtNome"/>
+                    <p:inputText id="txtNome" value="#{controlePessoa.objeto.nome}"
+                                 size="40" maxlength="40"
+                                 required="true"
+                                 requiredMessage="O nome deve ser informado"/>
+                    <p:outputLabel value="CPF" for="txtCPF"/>
+                     <p:inputMask id="txtCPF" value="#{controlePessoas.objeto.cpf}"
+                                 mask="99999999999" placeholder="Obrigatório" size="14"/>
+                    <p:outputLabel value="Senha" for="txtSenha"/>
+                    <p:password id="txtSenha" value="#{controlePessoa.objeto.senha}"
+                                 size="20" maxlength="20"
+                                 required="true"
+                                 requiredMessage="A senha deve ser informado"/>
+                    <p:commandButton value="Salvar" icon="ui-icon-disk"
+                                     actionListener="#{controlePessoa.salvar()}"
+                                     update="formEdicao formListagem"/>
+                    
+                </p:panelGrid>
+                <h:panelGroup id="painelPermissao">
+                    <p:panelGrid columns="2" columnClasses="ui-grid-col-2, ui-grid-col-20"
+                                 layout="grid" styleClass="ui-panelgrid-blank"
+                                 rendered="#{controlePessoa.editandoPermissao}">
+                        <f:facet name="header">
+                            <p:outputLabel value="Edição de Permissão da pessoa"/>
+                        </f:facet>
+                        <p:outputLabel value="Permissão" for="selectPermissao"/>
+                        <p:selectOneMenu id="selectPermissao"
+                                         value="#{controlePessoa.permissao}"
+                                         filter="true">
+                            <f:selectItem noSelectionOption="true"
+                                          itemLabel="Selecione um registro"/>
+                            <f:selectItems value="#{controlePessoa.daoPermissao.listaTodos}"
+                                           var="p" itemLabel="#{p.nome}"/>
+                            <f:converter converterId="convertePermissao"/>
+                        </p:selectOneMenu>
+                        <p:commandButton value="Salvar Permissão"
+                                         icon="ui-icon-disk"
+                                         actionListener="#{controlePessoa.salvaPermissao()}"
+                                         id="btnSalvarPermissao"
+                                         process="selectPermissao btnSalvarPermissao" 
+                                         update="painelPermissao listagemPermissao messages"/>
+                    </p:panelGrid>
+                </h:panelGroup>
+            </div>
+            <h:panelGroup id="listagemPermissao">
+                <h:panelGroup rendered="#{!controlePessoa.editandoPermissao}">
+                    <p:commandButton value="Nova Permissao"
+                                     icon="ui-icon-plus"
+                                     actionListener="#{controlePessoa.novaPermissao()}"
+                                     update="listagemPermissao painelPermissao"
+                                     process="@this"/>
+                    <p:dataTable value="#{controlePessoa.objeto.permissoes}"
+                                 var="per" reflow="true"><!-- reflow é para deixar o design responsivo -->
+                        <f:facet name="header">
+                            <p:outputLabel value="Permissao de usuário"/>
+                        </f:facet>
+                        <p:column headerText="Permissão">
+                            <p:outputLabel value="#{per.nome}"/>
+                        </p:column>
+                        <p:column headerText="Descrição">
+                            <p:outputLabel value="#{per.descricao}"/>
+                        </p:column>
+                        <p:column headerText="Permissão">
+                            <div align="center">
+                                <p:commandButton icon="ui-icon-trash"
+                                                 actionListener="#{controlePessoa.removerPermissao(per)}"
+                                                 process="@this" update="@form"/>
+                            </div>
+                        </p:column>
+                    </p:dataTable>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:panelGroup>
+    </h:form>
+</html>
